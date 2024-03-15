@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "<<十三日吉祥院探花>> 蔡襄"
+title: "十三日吉祥院探花"
 category: poetry
 ---
 北宋.蔡襄
