@@ -11,10 +11,7 @@ entries:
 
   - title: all posts
     post_list:
-      limit: 10
-      show_more: true
-      show_more_text: See archive...
-      show_more_url: archive.html
+      paginate: true
 
   # - title: posts by category
   #   post_list:
