@@ -1,5 +1,6 @@
 ---
 layout: home
+show_menu: false
 ---
 
 {% assign paginated_posts = paginator.posts | default: site.posts %}
