@@ -27,3 +27,7 @@ sass:
 plugins:
   - jekyll-feed
   - jekyll-seo-tag
+  - jekyll-paginate
+
+paginate: 10
+paginate_path: "/page:num/"
