@@ -24,10 +24,8 @@ theme_config:
 sass:
   style: :compressed
 
-plugins:
-  - jekyll-feed
-  - jekyll-seo-tag
-  - jekyll-paginate
-
-paginate: 10
-paginate_path: "/page:num/"
+# 分页
+gems: jekyll-paginate
+# 每页有几个项目
+paginate: 5
+paginate_path: "page:num"
