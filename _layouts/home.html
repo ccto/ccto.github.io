@@ -8,8 +8,6 @@ layout: default
   {%-endif-%}
 </header>
 
-{%- if site.data.menu.entries and page.show_menu != false -%}
-  {%-include menu_item.html collection=site.data.menu.entries-%}
-{%- endif -%}
+{%-include menu_item.html collection=site.data.menu.entries-%}
 
 {{ content }}
