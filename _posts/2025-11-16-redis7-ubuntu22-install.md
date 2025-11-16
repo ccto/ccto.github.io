@@ -4,8 +4,6 @@ title: "在 Ubuntu 22.04 上安装 Redis 7"
 category: Redis
 ---
 
-# 在 Ubuntu 22.04 上安装 Redis 7
-
 ## 1. 更新系统
 首先，更新系统包列表，确保所有系统包都是最新的：
 

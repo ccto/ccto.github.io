@@ -5,8 +5,6 @@ category: Redis
 date: 2025-11-16
 ---
 
-# Redis data types
-
 Overview of data types supported by Redis
 
 Redis is a data structure server. At its core, Redis provides a collection of native data types that help you solve a wide variety of problems, from [caching](https://redis.io/docs/latest/develop/data-types/strings/) to [queuing](https://redis.io/docs/latest/develop/data-types/lists/) to [event processing](https://redis.io/docs/latest/develop/data-types/streams/). Below is a short description of each data type, with links to broader overviews and command references. Each overview includes a comprehensive tutorial with code samples.
