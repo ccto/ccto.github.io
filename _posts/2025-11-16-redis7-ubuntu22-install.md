@@ -4,7 +4,6 @@ title: "在 Ubuntu 22.04 上安装 Redis 7"
 category: Redis
 ---
 
-````markdown
 # 在 Ubuntu 22.04 上安装 Redis 7
 
 ## 1. 更新系统
