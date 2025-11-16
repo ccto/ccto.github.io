@@ -2,8 +2,11 @@
 
 source "https://rubygems.org"
 
-# GitHub Pages 官方依赖管理（会统一锁定 Jekyll、kramdown 等版本）
-gem "github-pages", group: :jekyll_plugins
+gem "kramdown-parser-gfm"
+gem "webrick"
+gem "csv"
+gem "bigdecimal"
+gem "base64"
+gem "logger"
 
-# 允许本地 serve
-gem "webrick", "~> 1.8"
+gemspec
