@@ -2,6 +2,7 @@
 layout: post
 title: "Redis data types"
 category: Redis
+date: 2025-11-16
 ---
 
 # Redis data types
