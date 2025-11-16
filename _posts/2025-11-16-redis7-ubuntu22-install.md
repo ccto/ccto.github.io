@@ -4,8 +4,6 @@ title: "在 Ubuntu 22.04 上安装 Redis 7"
 category: Redis
 ---
 
-下面是生成的完整 Markdown 文件，你可以将它保存为 `.md` 文件：
-
 ````markdown
 # 在 Ubuntu 22.04 上安装 Redis 7
 
