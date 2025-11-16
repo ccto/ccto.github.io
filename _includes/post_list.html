@@ -1,54 +1,29 @@
-{%- assign using_paginator = include.paginate and include.paginator -%}
+{%-if include.category-%}
+  {%-assign posts = site.categories[include.category]-%}  
+{%-else-%}
+  {%-assign posts = site.posts-%}
+{%-endif-%}
 
-{%- if using_paginator -%}
-  {%- assign posts = include.paginator.posts -%}
-{%- elsif include.category -%}
-  {%- assign posts = site.categories[include.category] -%}
-{%- else -%}
-  {%- assign posts = site.posts -%}
-{%- endif -%}
-
-{%- if include.limit and posts.size > include.limit and not using_paginator -%}
-  {%- assign limit_exceeded = true -%}
-{%- else -%}
-  {%- assign limit_exceeded = false -%}
-{%- endif -%}
+{%-if include.limit and posts.size > include.limit-%}
+  {%-assign limit_exceeded = true-%}
+{%-else-%}
+  {%-assign limit_exceeded = false-%}
+{%-endif-%}
 
 {%- if posts.size > 0 -%}
-  {%- assign posts_limit = nil -%}
-  {%- if using_paginator -%}
-    {%- assign posts_limit = posts | size -%}
-  {%- elsif include.limit -%}
-    {%- assign posts_limit = include.limit -%}
-  {%- endif -%}
-
-  {%- if posts_limit -%}
-    {%- assign posts_to_render = posts | slice: 0, posts_limit -%}
-  {%- else -%}
-    {%- assign posts_to_render = posts -%}
-  {%- endif -%}
-
   <ul>
-    {%- for post in posts_to_render -%}
+    {%- for post in posts limit: include.limit -%}
         <li>
           <span>{{- post.date | date: site.theme_config.date_format -}}</span>
+          {% if site.theme_config.lowercase_titles == true %}
           <a href="{{ post.url | relative_url }}">{{ post.title | downcase }}</a>
+          {% else %}
+          <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+          {% endif %}
         </li>
     {%- endfor -%}
-    {%- if include.show_more and limit_exceeded and not using_paginator -%}
+    {%- if include.show_more and limit_exceeded -%}
       <li><a href="{{ include.show_more_url }}">{{ include.show_more_text | default: "Show more..." }}</a></li>
     {%- endif -%}
   </ul>
-
-  {%- if using_paginator and include.paginator.total_pages > 1 -%}
-    <nav class="post-list-pagination">
-      {%- if include.paginator.previous_page -%}
-        <a class="prev" href="{{ include.paginator.previous_page_path | relative_url }}">上一页</a>
-      {%- endif -%}
-      <span class="page-info">第 {{ include.paginator.page }} / {{ include.paginator.total_pages }} 页</span>
-      {%- if include.paginator.next_page -%}
-        <a class="next" href="{{ include.paginator.next_page_path | relative_url }}">下一页</a>
-      {%- endif -%}
-    </nav>
-  {%- endif -%}
 {%- endif -%}
