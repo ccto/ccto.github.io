@@ -1,143 +1,177 @@
 ---
 layout: post
-title: "Java 开发手册"
+title: "Java 开发规范速查"
 category: Java
 ---
 
-## 一、编程规约
+## 命名规范
 
-### 命名风格
+- 类名: `UpperCamelCase`
+- 方法/变量: `lowerCamelCase`
+- 常量: `UPPER_CASE`
+- 抽象类: `Abstract` 或 `Base` 开头
+- 异常类: `Exception` 结尾
 
-**【强制】** 代码中的命名均不能以下划线或美元符号开始或结束。
+## 代码规范
 
-**【强制】** 代码中的命名严禁使用拼音与英文混合,更不允许直接使用中文。正确的英文拼写和语法可以让阅读者易于理解。
+**equals 使用**
+```java
+// 正确
+"test".equals(object);
+// 错误 - 可能 NPE
+object.equals("test");
+```
 
-**【强制】** 类名使用 `UpperCamelCase` 风格,方法名、参数名、成员变量、局部变量都统一使用 `lowerCamelCase` 风格。
+**包装类比较**
+```java
+// 使用 equals
+Integer a = 128;
+Integer b = 128;
+a.equals(b); // ✓
+a == b;      // ✗
+```
 
-**【强制】** 常量命名全部大写,单词间用下划线隔开,力求语义表达完整清楚。
+**集合操作**
+```java
+// 初始化指定大小
+Map<String, String> map = new HashMap<>(16);
 
-**【强制】** 抽象类命名使用 Abstract 或 Base 开头;异常类命名使用 Exception 结尾;测试类命名以它要测试的类的名称开始,以 Test 结尾。
+// 使用 entrySet 遍历
+for (Map.Entry<String, String> entry : map.entrySet()) {
+    // ...
+}
 
-### OOP 规约
+// 不要在 foreach 中 remove
+// 使用 Iterator
+Iterator<String> it = list.iterator();
+while (it.hasNext()) {
+    if (condition) it.remove();
+}
+```
 
-**【强制】** 避免通过一个类的对象引用访问此类的静态变量或静态方法,无谓增加编译器解析成本,直接用类名来访问即可。
+## 并发规范
 
-**【强制】** 所有的覆写方法,必须加 `@Override` 注解。
+**线程池**
+```java
+// ✗ 不要用 Executors
+Executors.newFixedThreadPool(10);
 
-**【强制】** Object 的 equals 方法容易抛空指针异常,应使用常量或确定有值的对象来调用 equals。
+// ✓ 使用 ThreadPoolExecutor
+new ThreadPoolExecutor(
+    10, 20, 60L, TimeUnit.SECONDS,
+    new LinkedBlockingQueue<>(1000)
+);
+```
 
-**【强制】** 所有相同类型的包装类对象之间值的比较,全部使用 equals 方法比较。
+**SimpleDateFormat**
+```java
+// ✗ 线程不安全
+static SimpleDateFormat sdf = new SimpleDateFormat();
 
-**【强制】** 定义 DO/DTO/VO 等 POJO 类时,不要设定任何属性默认值。
+// ✓ 使用 ThreadLocal
+private static ThreadLocal<DateFormat> df = 
+    ThreadLocal.withInitial(() -> 
+        new SimpleDateFormat("yyyy-MM-dd"));
+```
 
-### 集合处理
+## 异常处理
 
-**【强制】** 关于 hashCode 和 equals 的处理,遵循如下规则:
-- 只要重写 equals,就必须重写 hashCode
-- 因为 Set 存储的是不重复的对象,依据 hashCode 和 equals 进行判断
-- 如果自定义对象作为 Map 的键,那么必须重写 hashCode 和 equals
+```java
+// ✓ 预检查避免异常
+if (obj != null) {
+    obj.method();
+}
 
-**【强制】** 不要在 foreach 循环里进行元素的 remove/add 操作。remove 元素请使用 Iterator 方式。
+// ✗ 不要用异常做流程控制
+try {
+    obj.method();
+} catch (NullPointerException e) {
+    // ...
+}
 
-**【推荐】** 集合初始化时,指定集合初始值大小。
+// ✓ finally 关闭资源
+try {
+    // ...
+} finally {
+    if (stream != null) {
+        stream.close();
+    }
+}
+```
 
-**【推荐】** 使用 entrySet 遍历 Map 类集合 KV,而不是 keySet 方式进行遍历。
+## 数据库规范
 
-### 并发处理
+**建表**
+```sql
+-- 必备字段
+id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+create_time DATETIME NOT NULL,
+update_time DATETIME NOT NULL,
+is_deleted TINYINT UNSIGNED DEFAULT 0
 
-**【强制】** 线程资源必须通过线程池提供,不允许在应用中自行显式创建线程。
+-- 小数类型用 decimal
+price DECIMAL(10,2)
 
-**【强制】** 线程池不允许使用 Executors 去创建,而是通过 ThreadPoolExecutor 的方式,这样的处理方式让写的同学更加明确线程池的运行规则,规避资源耗尽的风险。
+-- 表名/字段名小写
+user_order (✓)
+UserOrder  (✗)
+```
 
-**【强制】** SimpleDateFormat 是线程不安全的类,一般不要定义为 static 变量,如果定义为 static,必须加锁,或者使用 DateUtils 工具类。
+**索引**
+- 业务唯一字段必须建唯一索引
+- 超过 3 个表禁止 join
+- varchar 索引指定长度
+- 禁止左模糊查询
 
-**【强制】** 高并发时,同步调用应该去考量锁的性能损耗。能用无锁数据结构,就不要用锁;能锁区块,就不要锁整个方法体;能用对象锁,就不要用类锁。
+**SQL**
+```sql
+-- ✓ 使用 count(*)
+SELECT COUNT(*) FROM table;
 
-## 二、异常日志
+-- ✗ 不用外键级联
+-- ✗ 不用存储过程
+-- ✓ in 集合 < 1000
+```
 
-### 异常处理
+## 日志规范
 
-**【强制】** Java 类库中定义的可以通过预检查方式规避的 RuntimeException 异常不应该通过 catch 的方式来处理,比如:NullPointerException,IndexOutOfBoundsException 等等。
+```java
+// ✓ 使用 SLF4J
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+private static final Logger log = 
+    LoggerFactory.getLogger(XxxClass.class);
 
-**【强制】** 异常不要用来做流程控制,条件控制。
+// ✓ 使用占位符
+log.debug("id: {}, name: {}", id, name);
 
-**【强制】** 捕获异常是为了处理它,不要捕获了却什么都不处理而抛弃之,如果不想处理它,请将该异常抛给它的调用者。
+// ✓ 判断日志级别
+if (log.isDebugEnabled()) {
+    log.debug("Expensive: {}", expensiveMethod());
+}
+```
 
-**【强制】** finally 块必须对资源对象、流对象进行关闭,有异常也要做 try-catch。
+## 分层架构
 
-**【推荐】** 防止 NPE,是程序员的基本修养,注意 NPE 产生的场景:
-- 返回类型为基本数据类型,return 包装数据类型的对象时,自动拆箱有可能产生 NPE
-- 数据库的查询结果可能为 null
-- 集合里的元素即使 isNotEmpty,取出的数据元素也可能为 null
-- 远程调用返回对象时,一律要求进行空指针判断,防止 NPE
-- 级联调用 obj.getA().getB().getC();一连串调用,易产生 NPE
+```
+Web 层     → 访问控制、参数校验
+  ↓
+Service 层 → 业务逻辑
+  ↓
+Manager 层 → 通用业务、第三方封装
+  ↓
+DAO 层     → 数据访问
+```
 
-### 日志规约
-
-**【强制】** 应用中不可直接使用日志系统(Log4j、Logback)中的 API,而应依赖使用日志框架 SLF4J 中的 API。
-
-**【强制】** 对 trace/debug/info 级别的日志输出,必须使用条件输出形式或者使用占位符的方式。
-
-**【强制】** 避免重复打印日志,浪费磁盘空间。
-
-**【强制】** 异常信息应该包括两类信息:案发现场信息和异常堆栈信息。
-
-## 三、MySQL 数据库
-
-### 建表规约
-
-**【强制】** 表达是与否概念的字段,必须使用 is_xxx 的方式命名,数据类型是 unsigned tinyint(1 表示是,0 表示否)。
-
-**【强制】** 表名、字段名必须使用小写字母或数字,禁止出现数字开头。
-
-**【强制】** 表名不使用复数名词。
-
-**【强制】** 小数类型为 decimal,禁止使用 float 和 double。
-
-**【强制】** 表必备三字段:id, create_time, update_time。
-
-### 索引规约
-
-**【强制】** 业务上具有唯一特性的字段,即使是多个字段的组合,也必须建成唯一索引。
-
-**【强制】** 超过三个表禁止 join。需要 join 的字段,数据类型必须绝对一致。
-
-**【强制】** 在 varchar 字段上建立索引时,必须指定索引长度,没必要对全字段建立索引。
-
-**【强制】** 页面搜索严禁左模糊或者全模糊,如果需要请走搜索引擎来解决。
-
-### SQL 语句
-
-**【强制】** 不要使用 count(列名)或 count(常量)来替代 count(*),count(*) 是 SQL92 定义的标准统计行数的语法。
-
-**【强制】** 不得使用外键与级联,一切外键概念必须在应用层解决。
-
-**【强制】** 禁止使用存储过程,存储过程难以调试和扩展,更没有移植性。
-
-**【推荐】** in 操作能避免则避免,若实在避免不了,需要仔细评估 in 后边的集合元素数量,控制在 1000 个之内。
-
-## 四、工程结构
-
-### 应用分层
-
-推荐的应用分层结构:
-- **开放接口层**: 可直接封装 Service 方法暴露成 RPC 接口;通过 Web 封装成 http 接口
-- **Web 层**: 主要是对访问控制进行转发,各类基本参数校验
-- **Service 层**: 相对具体的业务逻辑服务层
-- **Manager 层**: 通用业务处理层
-- **DAO 层**: 数据访问层,与底层数据库进行数据交互
-
-### 领域模型规约
-
-- **DO** (Data Object): 与数据库表结构一一对应
-- **DTO** (Data Transfer Object): 数据传输对象
-- **BO** (Business Object): 业务对象
-- **VO** (View Object): 显示层对象
-- **Query**: 数据查询对象
+**领域模型**
+- DO: 数据库对象
+- DTO: 传输对象
+- VO: 视图对象
+- BO: 业务对象
 
 ---
 
-> 完整手册请参考: [阿里巴巴 Java 开发手册](https://github.com/alibaba/p3c)
+> 参考: [阿里巴巴 Java 开发手册](https://github.com/alibaba/p3c)
 - [（二）常量定义](#二常量定义)
 - [（三）代码格式](#三代码格式)
 - [（四）OOP 规约](#四oop-规约)
