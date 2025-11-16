@@ -1,3 +1,10 @@
+---
+layout: post
+title: "Java 开发手册（黄山版）"
+category: Java
+---
+
+
 # Java 开发手册（黄山版）
 
 ## 前言
